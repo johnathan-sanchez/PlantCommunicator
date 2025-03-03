@@ -6,7 +6,7 @@ communication and react to certain ideas and thoughts that humans have.
 Plant Communicator is an application that aims to construct a path of 
 communication from humans to plants.
 
-##Project Slides
+## Project Slides
 [Google Slides](https://docs.google.com/presentation/d/1aghbULnBMuKEsX_-gxrzvbbIGnTVr1h2CS4vBXGkshI/edit#slide=id.p)
 
 ## Project Management
