@@ -1,6 +1,5 @@
 import { PlantTile } from "../../components/PlantTile";
 import { NewPlant } from "../../components/NewPlant";
-import { Link } from "react-router-dom";
 
 export const PlantLibrary = () => {
     return (
