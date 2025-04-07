@@ -5,13 +5,6 @@ import { useEffect,useState } from "react";
 import { Link } from "react-router-dom";
 import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
 
-
-
-const confidenceLevel = 90.8;
-
-
-
-
 export const PlantIdentification = () => {
     const [species,setSpecies] = useState("");
     const [photoUploadEvent,setPhotoUploadEvent] = useState(true);
@@ -33,7 +26,6 @@ export const PlantIdentification = () => {
                     rank: "Species",  // The prediction rank
             });
             const speciesScientificName = result.data[0]?.confidences?.[0]?.label || "Unknown";
-            //const speciesScientificName = speciesLabel.split(" ").slice(-2).join(" ");
             setSpecies(speciesScientificName);
             var confidence = result.data[0]?.confidences?.[0]?.confidence || 0;
             confidence = confidence.toFixed(2);
@@ -76,6 +68,10 @@ export const PlantIdentification = () => {
                 <input type="text" className="border rounded-lg px-4 py-2 w-72 mb-2 focus:border-green-500 focus:ring-2 focus:ring-green-300 outline-none justify-self-center" placeholder="Enter plant name" onChange={(e)=>setPlantName(e.target.value)}/>
                 <Link to="/">
                     <button 
+                    onClick={()=>{
+                        // Add the plant to the user's library
+                    } 
+                    }    
                     className="cursor-pointer flex items-center justify-center border rounded-lg btn-primary justify-self-center">
                         Add to Library
                     </button>

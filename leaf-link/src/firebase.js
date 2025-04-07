@@ -1,21 +1,28 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup} from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+
+
 const firebaseConfig = {
-  apiKey: "AIzaSyBy5Yg4vtogNhvs8RGnB9eiF22Ra2iun7k",
-  authDomain: "leaf-link-96b37.firebaseapp.com",
-  projectId: "leaf-link-96b37",
-  storageBucket: "leaf-link-96b37.firebasestorage.app",
-  messagingSenderId: "675172517381",
-  appId: "1:675172517381:web:7572836efd887afba63e6c",
-  measurementId: "G-7NPDS7SNLS"
+  apiKey: "AIzaSyCDEc_Xmmc5YnswmDXeTOJ4EfZaypyVANc",
+  authDomain: "leaf-link-2b6ba.firebaseapp.com",
+  projectId: "leaf-link-2b6ba",
+  storageBucket: "leaf-link-2b6ba.firebasestorage.app",
+  messagingSenderId: "563577035805",
+  appId: "1:563577035805:web:a6b5ee6838510de5be3af4"
 };
 
+
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+export const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const googleProvider = new GoogleAuthProvider();
+
+export { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, signInWithPopup };
