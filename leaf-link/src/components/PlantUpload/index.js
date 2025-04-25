@@ -9,7 +9,7 @@ export const PlantUpload = ({upload}) => {
     
 
     const handleUpload = (e) => {
-        console.log(e);
+        console.log("handle upload e.target.file[0]: ",e.target.files[0]);
         setPlantImageUrl(URL.createObjectURL(e.target.files[0]));
         console.log(plantImageUrl);        
     };

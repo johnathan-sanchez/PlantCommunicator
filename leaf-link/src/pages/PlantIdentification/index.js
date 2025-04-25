@@ -1,9 +1,12 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRotateRight } from "@fortawesome/free-solid-svg-icons";
 import { PlantUpload } from "../../components/PlantUpload";
+import { uploadImageAndGetURL } from "../../utilities/uploadImageAndGetURL";
 import { useEffect,useState } from "react";
 import { Link } from "react-router-dom";
 import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
+import { doc, getDoc, getDocs, setDoc, collection } from "firebase/firestore";
+import { auth, db } from "../../firebase";
 
 export const PlantIdentification = () => {
     const [species,setSpecies] = useState("");
@@ -11,6 +14,26 @@ export const PlantIdentification = () => {
     const [plantName,setPlantName] = useState("");
     const [plantImageUrl,setPlantImageUrl] = useState("");
     const [confidenceLevel,setConfidenceLevel] = useState(0);
+
+    const uploadToDB = async () => {
+        try{
+            const userRef = doc(db, "users", auth.currentUser.uid);
+            const plantsRef = collection(userRef, "plants");
+            const newPlantRef = {
+                name: plantName,
+                species: species,
+                condition: null,
+                image: uploadImageAndGetURL(plantImageUrl),
+                lastUploaded: new Date().toISOString() // Add a timestamp for when the plant was uploaded
+            };
+            const docRef = await setDoc(doc(plantsRef), newPlantRef); // Firebase will generate a unique ID for the document
+            console.log("Plant added with ID: ", docRef.id);
+        }catch(err){
+            console.error(err);
+        }
+        
+    }
+
     useEffect(()=>{ 
         const predictSpecies = async ()=>{
             try{
@@ -44,6 +67,18 @@ export const PlantIdentification = () => {
         console.log("plantUploadEvent: ",photoUploadEvent);
     },[plantImageUrl]);
     
+    useEffect(() => {
+        try{
+            if (!auth.currentUser) {
+            // Redirect to login page if user is not authenticated
+                window.location.href = "/login";
+            }
+        }catch (error) {
+            console.error("Error checking authentication:", error);
+            // Handle error (e.g., show a message to the user)
+        }
+
+    }, []);
 
     return (
         <>
@@ -57,9 +92,9 @@ export const PlantIdentification = () => {
                 <div className="w-72 h-72 justify-self-center relative">
                     <img src={plantImageUrl} alt="Plant" className="h-full w-full rounded-3xl justify-self-center"/>
                     <button onClick={()=>{
-                        setPlantImageUrl(null);
                         setSpecies("");
                         setConfidenceLevel(0);
+                        setPlantImageUrl(null);
                         }} 
                         className="absolute rounded-full bottom-3 right-3 btn-primary !bg-gray-500 !px-3">
                         <FontAwesomeIcon icon={faRotateRight} />
@@ -70,6 +105,7 @@ export const PlantIdentification = () => {
                     <button 
                     onClick={()=>{
                         // Add the plant to the user's library
+                        uploadToDB();
                     } 
                     }    
                     className="cursor-pointer flex items-center justify-center border rounded-lg btn-primary justify-self-center">

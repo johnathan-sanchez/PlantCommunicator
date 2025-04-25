@@ -1,22 +1,20 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { logout } from "../../utilities/logout"; // Adjust the import path as necessary
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, auth, signInWithPopup, googleProvider, signOut} from "../../firebase";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, auth, signInWithPopup, googleProvider, updateProfile, db} from "../../firebase";
+import { doc, setDoc } from "firebase/firestore";
 
 export const Login = () => {
+    const [firstName,setFirstName] = useState("");
+    const [lastName,setLastName] = useState("");
     const [email, setEmail] = useState("");
     const navigate = useNavigate();
 
-    auth.currentUser?
-    console.log("auth.currentUser email: ", auth.currentUser.email):
-    console.log("auth.currentUser is null");
-
-    
     const handleLogin = async (e) => {
         try {
             e.preventDefault();
             await signInWithEmailAndPassword(auth, email, e.target.password.value);
-            console.log("User logged in:", email);
+            console.log("User logged in:", auth.currentUser);
             navigate("/");
             //takes the user to the home page after login
         } catch (error) {
@@ -29,7 +27,16 @@ export const Login = () => {
         try {
             e.preventDefault();
             await createUserWithEmailAndPassword(auth, email, e.target.password.value);
+            await updateProfile(auth.currentUser, {
+                displayName: `${firstName} ${lastName}`, // Combine first and last name
+            });
             console.log("User signed up:", email);
+            const userRef = doc(db, "users", auth.currentUser.uid);
+            await setDoc(userRef,{
+                email:email,
+                firstName:firstName,
+                lastName:lastName
+            })
             //takes the user to the home page after signup
             navigate("/");
 
@@ -42,7 +49,15 @@ export const Login = () => {
         try {
             await signInWithPopup(auth, googleProvider);
             console.log("User logged in with Google:", auth.currentUser.email);
+            const [firstName, lastName] = auth.currentUser.displayName.split(" "); 
+            const userRef = doc(db, "users", auth.currentUser.uid);
+            await setDoc(userRef,{
+                email:email,
+                firstName:firstName,
+                lastName:lastName
+            })
             //takes the user to the home page after login
+
             navigate("/");
         } catch (error) {
             console.error("Error signing in with Google:", error);
@@ -53,13 +68,15 @@ export const Login = () => {
     return (
         <>
             <form onSubmit={handleLogin}>
-                <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                <input type="password" name="password" placeholder="Password" required />
+                <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} maxLength="50" required />
+                <input type="password" name="password" placeholder="Password" maxLength="50" required />
                 <button type="submit">Login</button>
             </form>
             <form onSubmit={handleSignUp}>
-                <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                <input type="password" name="password" placeholder="Password" required />
+                <input type="text" placeholder="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} maxLength="50" required />
+                <input type="text" placeholder="Last Name" value={lastName} onChange={(e) => setFirstName(e.target.value)} maxLength="50" required />
+                <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} maxLength="50" required />
+                <input type="password" name="password" placeholder="Password" maxLength="50" required />
                 <button type="submit">Sign Up</button>
             </form>
             <button onClick={handleLoginWithGoogle}>Login with Google</button>

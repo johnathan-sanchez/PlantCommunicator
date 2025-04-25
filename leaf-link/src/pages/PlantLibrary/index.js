@@ -3,7 +3,11 @@ import { NewPlant } from "../../components/NewPlant";
 import plantImage from "../../assets/plantImage.jpg";
 import rubberTreePlant from '../../assets/RubberTreePlant.webp';
 import { logout } from "../../utilities/logout";
+import { checkAuthAndFetch } from "../../utilities/checkAuthAndFetch";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { doc, getDoc, getDocs, setDoc, collection } from "firebase/firestore";
+import { auth, db } from "../../firebase"; // Adjust the import path as necessary
 
 export const applicationData = {
     users: [
@@ -80,9 +84,53 @@ export const applicationData = {
     ]
 };
 
+
+const getUserData = async () => {
+    try {
+        const userRef = doc(db, "users", auth.currentUser.uid);
+        const userSnap = await getDoc(userRef);
+        if(userSnap.exists()){
+            return userSnap.data();
+        }
+        else{
+            console.error("User snap not found");
+        }
+    } catch (err) {
+        console.error("error getting user data: ",err);
+    }
+};
+
+console.log("auth current user ", auth.currentUser)
+
 export const PlantLibrary = () => {
-    const userId = 2; // Simulate user with id: 1
-    const user = applicationData.users.find(user => user.id === userId);
+    useEffect(() => {
+        checkAuthAndFetch(getUserData);
+        const checkIfPlantsExist = async () => {
+            try {
+                const userId = auth.currentUser.uid;
+                // Reference the "plants" subcollection for the given user
+                const plantsRef = collection(db, "users", userId, "plants");
+                const plantsSnapshot = await getDocs(plantsRef);
+        
+                // Check if the subcollection contains any documents
+                if (!plantsSnapshot.empty) {
+                    console.log("Plants collection exists: ",plantsSnapshot);
+                    const plantData = plantsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    setPlants(plantData);
+                    return true;
+                } else {
+                    console.log("Plants collection does not exist or is empty.");
+                    return false;
+                }
+            } catch (error) {
+                console.error("Error checking plants collection:", error);
+                return false;
+            }
+        };
+        checkIfPlantsExist();
+    }, []);
+    
+    const [plants,setPlants]= useState(null);
 
     return (
         <>
@@ -93,21 +141,19 @@ export const PlantLibrary = () => {
                 </Link>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 place-items-center w-max mx-auto m-5">
-                {(() => {
-                    try {
-                        return (
-                            <>
-                                {user.plants.map(plant => (
-                                    <PlantTile userId={userId} key={plant.id} plant={plant} />
-                                ))}
-                                <NewPlant />
-                            </>
-                        );
-                    } catch (error) {
-                        console.error("Error rendering plants:", error);
-                        return <p>Error loading plants.</p>;
-                    }
-                })()}
+                {plants && plants.length > 0 ? 
+                plants.map((plant) => (
+                    <PlantTile
+                        key={plant.id}
+                        name={plant.name}
+                        species={plant.species}
+                        condition={plant.condition}
+                        image={plant.image}
+                        lastUpdated={plant.lastUpdated}
+                    />
+                )):null
+                }
+                <NewPlant />
             </div>
         </>
     );
