@@ -131,6 +131,8 @@ export const PlantLibrary = () => {
     }, []);
     
     const [plants,setPlants]= useState(null);
+    
+    
 
     return (
         <>
@@ -143,14 +145,14 @@ export const PlantLibrary = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 place-items-center w-max mx-auto m-5">
                 {plants && plants.length > 0 ? 
                 plants.map((plant) => (
-                    <PlantTile
-                        key={plant.id}
-                        name={plant.name}
-                        species={plant.species}
-                        condition={plant.condition}
-                        image={plant.image}
-                        lastUpdated={plant.lastUpdated}
-                    />
+                    <Link to={'/plant-profile'} state={{plant: plant}} key={plant.id}>
+                        <PlantTile
+                            name={plant.name}
+                            image={plant.image}
+                            lastUploaded={plant.lastUploaded}
+                        />
+                    </Link>
+                    
                 )):null
                 }
                 <NewPlant />

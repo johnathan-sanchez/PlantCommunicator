@@ -4,6 +4,7 @@ import { faCoffee } from "@fortawesome/free-solid-svg-icons";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 
+//button to add new plant
 export const NewPlant = () => {
     return (
         <Link to="/plant-identification">

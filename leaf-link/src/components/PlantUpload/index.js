@@ -6,12 +6,18 @@ import { useEffect,useRef, useState  } from "react";
 export const PlantUpload = ({upload}) => {
     const dropzoneRef = useRef(null);
     const [plantImageUrl,setPlantImageUrl] = useState(null);
+    const [plantImage,setPlantImage] = useState(null);
     
 
     const handleUpload = (e) => {
         console.log("handle upload e.target.file[0]: ",e.target.files[0]);
+        setPlantImage(e.target.files[0]);
         setPlantImageUrl(URL.createObjectURL(e.target.files[0]));
         console.log(plantImageUrl);        
+    };
+    const handleReload = () => {
+        setPlantImage(null);
+        setPlantImageUrl(null);
     };
 
     // useEffect(() => {
@@ -59,11 +65,11 @@ export const PlantUpload = ({upload}) => {
 
             (<>
                 <img src={plantImageUrl} className="border border-green-700 rounded-3xl border-4 w-72 h-72 justify-self-center flex flex-col items-center justify-center" />
-                <button onClick={()=>{setPlantImageUrl(null)}} className="border border-4 border-green-700 relative rounded-full bottom-6 btn-primary !px-3">
+                <button onClick={handleReload} className="border border-4 border-green-700 relative rounded-full bottom-6 btn-primary !px-3">
                     <FontAwesomeIcon icon={faRotateRight} />
                 </button>
 
-                <button onClick={()=>{upload(plantImageUrl)}} className="cursor-pointer flex items-center justify-center border rounded-lg btn-primary justify-self-center">Identify</button>
+                <button onClick={()=>{upload(plantImage)}} className="cursor-pointer flex items-center justify-center border rounded-lg btn-primary justify-self-center">Identify</button>
             </>):
 
             (<div ref={dropzoneRef} className="border rounded-3xl border-dashed border-4 border-green-700 w-72 h-72 justify-self-center flex flex-col items-center justify-center">   

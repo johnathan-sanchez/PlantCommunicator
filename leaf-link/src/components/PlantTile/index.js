@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
 
-export const PlantTile = ({ userId, plant }) => {
+export const PlantTile = ({ name, image, lastUploaded}) => {
     const navigate = useNavigate();
+    const date = new Date(lastUploaded);
+    const formattedDate = date.toDateString();
 
     const handleClick = () => {
-        navigate(`/plants/${userId}/${plant.id}`);
+        //navigate(`/plants/${userId}/${plant.id}`);
     };
 
     return (
@@ -12,13 +14,13 @@ export const PlantTile = ({ userId, plant }) => {
             <div className="flex h-36 justify-between p-2">
                 <img
                     className="w-full h-full rounded-md object-cover object-center"
-                    src={plant.Image}
+                    src={image}
                     alt="plant"
                 />
             </div>
             <div className="p-2">
-                <h1 className="font-semibold">{plant.name}</h1>
-                <p className="text-xs">last updated {plant.lastUpdated}</p>
+                <h1 className="font-semibold">{name}</h1>
+                <p className="text-xs">last updated: {formattedDate}</p>
             </div>
         </div>
     );

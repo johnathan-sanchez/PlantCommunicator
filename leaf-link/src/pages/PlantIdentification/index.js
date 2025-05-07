@@ -3,7 +3,7 @@ import { faRotateRight } from "@fortawesome/free-solid-svg-icons";
 import { PlantUpload } from "../../components/PlantUpload";
 import { uploadImageAndGetURL } from "../../utilities/uploadImageAndGetURL";
 import { useEffect,useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
 import { doc, getDoc, getDocs, setDoc, collection } from "firebase/firestore";
 import { auth, db } from "../../firebase";
@@ -12,60 +12,66 @@ export const PlantIdentification = () => {
     const [species,setSpecies] = useState("");
     const [photoUploadEvent,setPhotoUploadEvent] = useState(true);
     const [plantName,setPlantName] = useState("");
+    //hold image instead of URL
+    const [plantImage,setPlantImage] = useState(null);
     const [plantImageUrl,setPlantImageUrl] = useState("");
     const [confidenceLevel,setConfidenceLevel] = useState(0);
+    const navigate = useNavigate();
 
     const uploadToDB = async () => {
         try{
             const userRef = doc(db, "users", auth.currentUser.uid);
             const plantsRef = collection(userRef, "plants");
+            const url = await uploadImageAndGetURL(plantImage);
             const newPlantRef = {
                 name: plantName,
                 species: species,
                 condition: null,
-                image: uploadImageAndGetURL(plantImageUrl),
-                lastUploaded: new Date().toISOString() // Add a timestamp for when the plant was uploaded
+                image: url,
+                lastUploaded: new Date().toLocaleString() // Add a timestamp for when the plant was uploaded
             };
-            const docRef = await setDoc(doc(plantsRef), newPlantRef); // Firebase will generate a unique ID for the document
-            console.log("Plant added with ID: ", docRef.id);
+            const docRef = await setDoc(doc(plantsRef), newPlantRef);
         }catch(err){
             console.error(err);
         }
         
     }
 
-    useEffect(()=>{ 
-        const predictSpecies = async ()=>{
-            try{
-                if(!plantImageUrl){
-                    console.log("No image uploaded");
-                    return;
-                }
-                const client = await Client.connect("imageomics/bioclip-demo");
-                const response = await fetch(plantImageUrl);
-                const imageBlob = await response.blob();
-                const result = await client.predict("/lambda", { 
-                    img: imageBlob,  // Send the image blob
-                    rank: "Species",  // The prediction rank
-            });
-            const speciesScientificName = result.data[0]?.confidences?.[0]?.label || "Unknown";
-            setSpecies(speciesScientificName);
-            var confidence = result.data[0]?.confidences?.[0]?.confidence || 0;
-            confidence = confidence.toFixed(2);
-            setConfidenceLevel(confidence*100);
-            console.log(result.data[0]?.confidences?.[0]);
-            console.log("species: ",species,"confidence: ",confidenceLevel);
-            }
-            catch(err){
-                console.log(err);
-            }
-        
-            
-        }
-        predictSpecies();
+    const uploadImage = (file) => {
+        var objectURL = URL.createObjectURL(file);
+        setPlantImage(file);
+        setPlantImageUrl(objectURL);
+        console.log("plantImageUrl: ",plantImageUrl);
+        predictSpecies(objectURL);
         setPhotoUploadEvent(prev => !prev);
         console.log("plantUploadEvent: ",photoUploadEvent);
-    },[plantImageUrl]);
+    }
+
+    const predictSpecies = async (objectURL)=>{
+        try{
+            if(!objectURL){
+                console.log("No image uploaded");
+                return;
+            }
+            const client = await Client.connect("imageomics/bioclip-demo");
+            const response = await fetch(objectURL);
+            const imageBlob = await response.blob();
+            const result = await client.predict("/lambda", { 
+                img: imageBlob,  // Send the image blob
+                rank: "Species",  // The prediction rank
+        });
+        const speciesScientificName = result.data[0]?.confidences?.[0]?.label || "Unknown";
+        setSpecies(speciesScientificName);
+        var confidence = result.data[0]?.confidences?.[0]?.confidence || 0;
+        confidence = confidence.toFixed(2);
+        setConfidenceLevel(confidence*100);
+        console.log(result.data[0]?.confidences?.[0]);
+        console.log("species: ",species,"confidence: ",confidenceLevel);
+        }
+        catch(err){
+            console.log(err);
+        }
+    }
     
     useEffect(() => {
         try{
@@ -84,7 +90,7 @@ export const PlantIdentification = () => {
         <>
             {photoUploadEvent ? 
 
-            (<PlantUpload upload={setPlantImageUrl}/>) :
+            (<PlantUpload upload={uploadImage}/>) :
 
             (<div className="text-center">
                 <div className="font-bold">Result</div>
@@ -101,17 +107,16 @@ export const PlantIdentification = () => {
                     </button>                        </div>
                 <div className="font-bold">Confidence Level: {confidenceLevel}%</div>
                 <input type="text" className="border rounded-lg px-4 py-2 w-72 mb-2 focus:border-green-500 focus:ring-2 focus:ring-green-300 outline-none justify-self-center" placeholder="Enter plant name" onChange={(e)=>setPlantName(e.target.value)}/>
-                <Link to="/">
-                    <button 
+                <button 
                     onClick={()=>{
-                        // Add the plant to the user's library
-                        uploadToDB();
-                    } 
+                            // Add the plant to the user's library
+                            uploadToDB();
+                            navigate("/")
+                        } 
                     }    
                     className="cursor-pointer flex items-center justify-center border rounded-lg btn-primary justify-self-center">
-                        Add to Library
-                    </button>
-                </Link>
+                    Add to Library
+                </button>
             </div>)
             
             

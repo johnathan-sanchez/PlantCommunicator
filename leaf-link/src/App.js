@@ -12,7 +12,7 @@ function App() {
           <Route path="/login" element={<Login/>}/>
           <Route path="/" element={<PlantLibrary/>}/>
           <Route path="/plant-identification" element={<PlantIdentification/>}/>
-          <Route path="/plants/:userId/:plantId" element={<PlantProfile />} />
+          <Route path="/plant-profile" element={<PlantProfile />} />
         </Routes>
       </Router>
       
