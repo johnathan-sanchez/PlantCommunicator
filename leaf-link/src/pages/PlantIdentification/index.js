@@ -90,9 +90,9 @@ export const PlantIdentification = () => {
         <>
             {photoUploadEvent ? 
 
-            (<PlantUpload upload={uploadImage}/>) :
+            <PlantUpload upload={uploadImage}/> :
 
-            (<div className="text-center">
+            <div className="text-center">
                 <div className="font-bold">Result</div>
                 <div className="font-bold">Your plant's species name is <br/><span className="text-green-700 text-xl">{species}</span> </div>
                 <div className="w-72 h-72 justify-self-center relative">
@@ -106,7 +106,7 @@ export const PlantIdentification = () => {
                         <FontAwesomeIcon icon={faRotateRight} />
                     </button>                        </div>
                 <div className="font-bold">Confidence Level: {confidenceLevel}%</div>
-                <input type="text" className="border rounded-lg px-4 py-2 w-72 mb-2 focus:border-green-500 focus:ring-2 focus:ring-green-300 outline-none justify-self-center" placeholder="Enter plant name" onChange={(e)=>setPlantName(e.target.value)}/>
+                <input type="text" className="text-input" onChange={(e)=>setPlantName(e.target.value)}/>
                 <button 
                     onClick={()=>{
                             // Add the plant to the user's library
@@ -117,7 +117,7 @@ export const PlantIdentification = () => {
                     className="cursor-pointer flex items-center justify-center border rounded-lg btn-primary justify-self-center">
                     Add to Library
                 </button>
-            </div>)
+            </div>
             
             
             }
