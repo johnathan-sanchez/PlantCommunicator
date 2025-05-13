@@ -83,7 +83,7 @@ export const Login = () => {
             </form> : 
             <form onSubmit={handleSignUp} className="flex flex-col items-center">
                 <input type="text" placeholder="First Name" value={firstName} className="text-input" onChange={(e) => setFirstName(e.target.value)} maxLength="50" required />
-                <input type="text" placeholder="Last Name" value={lastName} className="text-input" onChange={(e) => setFirstName(e.target.value)} maxLength="50" required />
+                <input type="text" placeholder="Last Name" value={lastName} className="text-input" onChange={(e) => setLastName(e.target.value)} maxLength="50" required />
                 <input type="email" placeholder="Email" value={email} className="text-input" onChange={(e) => setEmail(e.target.value)} maxLength="50" required />
                 <input type="password" name="password" placeholder="Password" className="text-input" maxLength="50" required />
                 <button type="submit" className="btn-primary rounded-lg">Sign Up</button>
